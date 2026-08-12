@@ -56,14 +56,14 @@ jobs:
       - name: Checkout Deployment Repository
         uses: actions/checkout@v4
         with:
-          repository: 'anirudh110317/Deployement' # <-- Replace with your GitHub username and deployment repo name
-          token: ${{ secrets.DEPLOYMENT_PAT }}
-          path: deployement-repo
+          repository: 'anirudh110317/Deployement'
+          token: ${{ secrets.DEPLOYEMENT_PAT }}
+          path: Deployement-repo
 
       # 6. Update the image tag in the Kubernetes deployment YAML and push changes
       - name: Update Kubernetes YAML and Push
         run: |
-          cd deployement-repo/k8s`
+          cd Deployement-repo/k8s
           
           IMAGE_URI="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           NEW_TAG="${{ steps.image-tag.outputs.TAG }}"
