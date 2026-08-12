@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'anirudh110317/Deployement'
-          token: ${{ secrets.DEPLOYEMENT_PAT }}
+          token: ${{ secrets.DEPLOYMENT_PAT }}
           path: Deployement-repo
 
       # 6. Update the image tag in the Kubernetes deployment YAML and push changes
