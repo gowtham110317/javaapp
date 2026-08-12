@@ -1,8 +1,12 @@
-# Stage 1: Build the application
+# Stage 1: Build the application using standard maven
 FROM eclipse-temurin:17-jdk-jammy AS builder
 WORKDIR /app
+
+# Install maven via apt-get
+RUN apt-get update && apt-get install -y maven
+
 COPY . .
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
 FROM eclipse-temurin:17-jre-jammy
