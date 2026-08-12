@@ -56,14 +56,14 @@
         - name: Checkout Deployment Repository
           uses: actions/checkout@v4
           with:
-            repository: 'anirudh110317/Deployement.git'
+            repository: 'anirudh110317/Deployment.git'
             token: ${{ secrets.DPAT }}
-            path: Deployement-repo
+            path: deployment-repo
 
         # 6. Update the image tag in the Kubernetes deployment YAML and push changes
         - name: Update Kubernetes YAML and Push
           run: |
-            cd Deployement-repo/k8s
+            cd deployment-repo/k8s
             
             IMAGE_URI="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
             NEW_TAG="${{ steps.image-tag.outputs.TAG }}"
