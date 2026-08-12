@@ -15,6 +15,6 @@ public class JavaAppApplication {
 
     @GetMapping("/")
     public String home() {
-        return "Hello from Java App running in Kubernetes!";
+        return "Hello from Java App running in Kubernetes!"; 
     }
 }
