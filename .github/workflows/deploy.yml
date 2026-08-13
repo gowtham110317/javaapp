@@ -2,7 +2,8 @@ name: Build, Push and Update Deployment
 
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - 'v*'  # Triggers whenever you push a tag starting with 'v' (e.g., v1.0.0)
 
 env:
   REGISTRY: ghcr.io 
@@ -32,7 +33,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=semver,pattern={{version}}
             type=raw,value=latest
 
       - name: Build and push Docker image
@@ -56,13 +57,14 @@ jobs:
 
       - name: Update Image Tag using sed
         run: |
-          COMMIT_SHA=${{ github.sha }}
-          sed -i "s|image: ghcr.io/gowtham110317/javaapp:.*|image: ghcr.io/gowtham110317/javaapp:$COMMIT_SHA|g" k8s/deployment.yaml
+          # Extract the tag name (stripping 'refs/tags/' from github.ref)
+          TAG_NAME=${{ github.ref_name }}
+          sed -i "s|image: ghcr.io/gowtham110317/javaapp:.*|image: ghcr.io/gowtham110317/javaapp:$TAG_NAME|g" k8s/deployment.yaml
 
       - name: Commit and Push Changes to Deployment Repo
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.io"
           git add k8s/deployment.yaml
-          git commit -m "CI: update javaapp image tag to $COMMIT_SHA"
+          git commit -m "CI: update javaapp image tag to ${{ github.ref_name }}"
           git push
