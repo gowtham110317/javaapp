@@ -3,7 +3,7 @@ name: Build, Push and Update Deployment
 on:
   push:
     tags:
-      - 'v*'  # Triggers whenever you push a tag starting with 'v' (e.g., v1.0.0)
+      - 'v*'  # Triggers when you push a tag like v1.0.0
 
 env:
   REGISTRY: ghcr.io 
@@ -27,22 +27,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=latest
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
   update-manifest:
     needs: build-and-push
@@ -57,8 +49,8 @@ jobs:
 
       - name: Update Image Tag using sed
         run: |
-          # Extract the tag name (stripping 'refs/tags/' from github.ref)
           TAG_NAME=${{ github.ref_name }}
+          echo "Updating deployment.yaml with tag: $TAG_NAME"
           sed -i "s|image: ghcr.io/gowtham110317/javaapp:.*|image: ghcr.io/gowtham110317/javaapp:$TAG_NAME|g" k8s/deployment.yaml
 
       - name: Commit and Push Changes to Deployment Repo
