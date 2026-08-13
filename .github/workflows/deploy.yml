@@ -1,0 +1,68 @@
+name: Build, Push and Update Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: gowtham110317/javaapp
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+            type=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  update-manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          repository: anirudh110317/Deployment
+          token: ${{ secrets.D2PAT }}
+          ref: main
+
+      - name: Update Image Tag using sed
+        run: |
+          COMMIT_SHA=${{ github.sha }}
+          sed -i "s|image: ghcr.io/gowtham110317/javaapp:.*|image: ghcr.io/gowtham110317/javaapp:$COMMIT_SHA|g" k8s/deployment.yaml
+
+      - name: Commit and Push Changes to Deployment Repo
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.io"
+          git add k8s/deployment.yaml
+          git commit -m "CI: update javaapp image tag to $COMMIT_SHA"
+          git push
