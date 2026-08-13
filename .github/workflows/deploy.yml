@@ -50,7 +50,7 @@ jobs:
       - name: Checkout Deployment Repository
         uses: actions/checkout@v4
         with:
-          repository: anirudh110317/Deployment
+          repository: gowtham110317/Deployment
           token: ${{ secrets.D2PAT }}
           ref: main
 
