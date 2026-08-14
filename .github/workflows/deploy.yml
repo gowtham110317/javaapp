@@ -59,4 +59,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.io"
           git add k8s/deployment.yaml
           git commit -m "CI: update javaapp image tag to ${{ github.ref_name }}"
-          git push
+          git remote set-url origin https://x-access-token:${{ secrets.D2PAT }}@github.com/gowtham110317/Deployment.git
+          git push origin main
