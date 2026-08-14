@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io 
   IMAGE_NAME: gowtham110317/javaapp
-
+ 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
